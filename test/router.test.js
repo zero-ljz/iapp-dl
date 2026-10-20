@@ -8,6 +8,7 @@ import { compileRoutes, HEALTH_PATH } from '../src/app.js';
 import { createFileStore } from '../src/file-store.js';
 import { startServer } from '../src/node.js';
 import { createWorker } from '../src/worker.js';
+import { createEdgeOne } from '../src/edgeone.js';
 
 const destination = 'https://downloads.example.com/release/model.zip?download=1';
 const config = (routes = {}) => ({ schema: 1, routes });
@@ -219,4 +220,40 @@ test('Worker uses the same routes and passes local file requests to ASSETS', asy
   }), { ASSETS: { fetch: async () => new Response('0123456789') } });
   assert.equal(full.status, 200);
   assert.equal(await full.text(), '0123456789');
+});
+
+test('EdgeOne adapter uses the same routes and forwards published files', async () => {
+  const calls = [];
+  const app = createEdgeOne(config({ '/model.zip': destination }), {
+    assets: [{ path: '/local.bin', type: 'file', size: 10 },
+      { path: '/empty/', type: 'directory' }],
+    fetchStatic: async request => {
+      calls.push(request);
+      if (request.url.endsWith('/local.bin')) {
+        return new Response('3456789', {
+          status: 206,
+          headers: { 'Content-Range': 'bytes 3-9/10' },
+        });
+      }
+      return new Response('missing asset', { status: 404 });
+    },
+  });
+  const env = {};
+  const redirect = await app.fetch(new Request('https://edge.example/model.zip'), env);
+  assert.equal(redirect.status, 302);
+  assert.equal(redirect.headers.get('location'), destination);
+  assert.equal(calls.length, 0);
+
+  const partial = await app.fetch(new Request('https://edge.example/local.bin', {
+    headers: { Range: 'bytes=3-' },
+  }), env);
+  assert.equal(partial.status, 206);
+  assert.equal(partial.headers.get('cache-control'), 'no-store');
+  assert.equal(partial.headers.get('content-range'), 'bytes 3-9/10');
+  assert.equal(calls[0].headers.get('range'), 'bytes=3-');
+
+  const index = await app.fetch(new Request('https://edge.example/'), env);
+  assert.equal(index.status, 200);
+  assert.match(await index.text(), /href="\/empty\/"/);
+  assert.match(await (await app.fetch(new Request('https://edge.example/models/'), env)).text(), /Not found/);
 });

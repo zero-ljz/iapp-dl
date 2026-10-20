@@ -1,6 +1,6 @@
 {
   "name": "iapp-dl",
-  "description": "Download redirects, public files and directory indexes for Node.js and Cloudflare Workers",
+  "description": "Download redirects, public files and directory indexes for Node.js, Cloudflare Workers and EdgeOne Pages",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,9 +8,11 @@
   "scripts": {
     "start": "node src/node.js",
     "test": "node --test",
+    "build": "node scripts/check-config.js --edgeone",
     "check:config": "node scripts/check-config.js",
     "dev:worker": "node scripts/check-config.js --worker && wrangler dev --local",
     "build:worker": "node scripts/check-config.js --worker && wrangler deploy --dry-run --outdir build/worker",
+    "build:edgeone": "node scripts/check-config.js --edgeone",
     "deploy:worker": "node scripts/check-config.js --worker && wrangler deploy"
   },
   "dependencies": {

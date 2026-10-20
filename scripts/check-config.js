@@ -6,7 +6,9 @@ import { readConfig } from '../src/file-store.js';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const workerBuild = process.argv.includes('--worker');
-const routes = compileRoutes(JSON.parse(await readConfig(join(project, 'routes.json'))));
+const edgeoneBuild = process.argv.includes('--edgeone');
+const configuration = JSON.parse(await readConfig(join(project, 'routes.json')));
+const routes = compileRoutes(configuration);
 const assets = [];
 
 async function inspect(directory, prefix = '/') {
@@ -34,5 +36,13 @@ await inspect(join(project, 'public'));
 if (workerBuild) {
   await mkdir(join(project, 'build'), { recursive: true });
   await writeFile(join(project, 'build', 'asset-index.json'), JSON.stringify(assets));
+}
+if (edgeoneBuild) {
+  const functions = join(project, 'functions');
+  await mkdir(functions, { recursive: true });
+  await writeFile(join(functions, '_generated-config.js'),
+    `export default ${JSON.stringify(configuration, null, 2)};\n`);
+  await writeFile(join(functions, '_generated-assets.js'),
+    `export default ${JSON.stringify(assets, null, 2)};\n`);
 }
 console.log(`Valid configuration: ${routes.size} redirect(s); public/ checked`);

@@ -4,8 +4,8 @@
 
 部署域名为 `https://dl.iapp.run`。资源按应用分组：`public/<应用>/stable/` 存放更新索引，`public/<应用>/releases/` 存放安装包，`public/<应用>/models/` 存放模型；跨应用资源放在 `public/shared/`。
 
-一个 Node.js 项目，同时支持自有服务器和 Cloudflare Workers。使用 Hono 的标准
-Request/Response 接口共用路由逻辑；只有启动入口和静态文件读取方式不同。
+一个 Node.js 项目，同时支持自有服务器、Cloudflare Workers 和 EdgeOne Pages。
+使用 Hono 的标准 Request/Response 接口共用路由逻辑；只有启动入口和静态文件读取方式不同。
 只维护一份 `routes.json`，无需 KV、数据库或管理接口。
 
 请求处理顺序：先按完整路径查映射，命中返回 302；否则读取 `public/` 中对应文件；
@@ -22,6 +22,7 @@ iapp-dl/
     snapneo/releases/<版本号>/<安装包>
     snapneo/models/formula/本地模型.zip
     shared/                 # 跨应用资源
+  functions/                # EdgeOne Pages Functions 入口和构建生成模块
   src/                      # 服务代码，不公开
   deploy/                   # Nginx/systemd 示例，不公开
   wrangler.jsonc            # Worker 配置，不公开
@@ -121,6 +122,30 @@ Cloudflare 静态资源目前单文件上限为 25 MiB，发布检查会提前�
 Node 自托管没有这项 25 MiB 限制。目标存储平台自己的容量、流量和访问限制仍适用。
 迁移时需要完整携带 `public/`；其中的公开资源随 Git 提交和同步。
 GitHub 自动检查仅运行测试和构建，不会发布服务或上传这些资源。
+
+## EdgeOne Pages 运行
+
+EdgeOne Pages 使用 Edge Functions 运行 Hono。官方 Hono 模板使用 `functions/` 目录，
+其中 `functions/[[default]].js` 接收所有请求并导出 `onRequest(context)`；本项目已经提供同样的入口。
+EdgeOne 的运行时提供标准 Request、Response 和 fetch，EdgeOne 适配器会通过同域 fetch 读取已发布的
+`public/` 文件，同时使用构建时生成的清单制作目录索引。
+
+在 EdgeOne Pages 的 Git 构建设置中使用：
+
+```text
+框架预设：Hono
+应用场景：Edge Functions
+根目录：./
+安装命令：npm ci
+构建命令：npm run build
+输出目录：public
+```
+
+`npm run build` 会校验 `routes.json` 和 `public/`，并生成不公开的
+`functions/_generated-config.js`、`functions/_generated-assets.js`。修改映射或公开文件后需要重新部署
+EdgeOne；Node 自托管仍可自动重载配置，Cloudflare 仍使用 `npm run build:worker` 和 Wrangler。
+
+EdgeOne 的静态文件响应由平台提供，Range 支持和缓存行为以 EdgeOne 实际响应为准。
 
 ## SnapNeo 接入边界
 
