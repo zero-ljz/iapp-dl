@@ -3,6 +3,7 @@
   "name": "iapp-dl",
   "main": "src/worker-entry.js",
   "compatibility_date": "2026-10-20",
+  "workers_dev": true,
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",

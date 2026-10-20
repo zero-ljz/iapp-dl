@@ -3,5 +3,3 @@
 /.wrangler/
 /.dev.vars*
 /.env*
-/public/*
-!/public/.gitkeep

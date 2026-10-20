@@ -2,6 +2,8 @@
 
 通用下载分发服务：固定入口、外部 URL 跳转、本地文件和极简目录索引。
 
+部署域名为 `https://dl.iapp.run`。资源按应用分组：`public/<应用>/stable/` 存放更新索引，`public/<应用>/releases/` 存放安装包，`public/<应用>/models/` 存放模型；跨应用资源放在 `public/shared/`。
+
 一个 Node.js 项目，同时支持自有服务器和 Cloudflare Workers。使用 Hono 的标准
 Request/Response 接口共用路由逻辑；只有启动入口和静态文件读取方式不同。
 只维护一份 `routes.json`，无需 KV、数据库或管理接口。
@@ -17,7 +19,9 @@ iapp-dl/
   routes.json               # 唯一的资源映射配置，不公开
   public/                   # 唯一的静态资源目录
     snapneo/stable/windows-x64.json
+    snapneo/releases/<版本号>/<安装包>
     snapneo/models/formula/本地模型.zip
+    shared/                 # 跨应用资源
   src/                      # 服务代码，不公开
   deploy/                   # Nginx/systemd 示例，不公开
   wrangler.jsonc            # Worker 配置，不公开
@@ -115,7 +119,7 @@ Node 的目录索引实时读取文件；Worker 在启动开发环境、构建�
 Cloudflare 静态资源目前单文件上限为 25 MiB，发布检查会提前拒绝超限文件和符号链接。
 因此约 55 MB 的公式模型和大型安装包应在迁移前改为外部 URL 映射，并将其文件移出 `public/`；
 Node 自托管没有这项 25 MiB 限制。目标存储平台自己的容量、流量和访问限制仍适用。
-迁移时需要完整携带 `public/`；其中的资源默认不提交 Git，Git 仓库不会自动备份这些文件。
+迁移时需要完整携带 `public/`；其中的公开资源随 Git 提交和同步。
 GitHub 自动检查仅运行测试和构建，不会发布服务或上传这些资源。
 
 ## SnapNeo 接入边界

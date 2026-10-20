@@ -1,4 +1,6 @@
 {
   "schema": 1,
-  "routes": {}
+  "routes": {
+    "/snapneo/models/formula/pix2text-mfr-1.5-openvino-fp16-v1.zip": "https://cnb.cool/iapp.run/downloads/-/files/Rn2zC3hptNdDeDOMFM7uWD/7ad1a06a-c20f-4ea3-bf48-6b26f6f4ae42/pix2text-mfr-1.5-openvino-fp16-v1.zip"
+  }
 }
