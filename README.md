@@ -19,6 +19,9 @@ iapp-dl/
   routes.json               # 唯一的资源映射配置，不公开
   public/                   # 唯一的静态资源目录
     snapneo/stable/windows-x64.json
+    snapneo/stable/windows-x64-portable.json
+    snapneo/stable/macos-arm64.xml
+    snapneo/stable/macos-x64.xml
     snapneo/releases/<版本号>/<安装包>
     snapneo/models/formula/本地模型.zip
     shared/                 # 跨应用资源
@@ -149,10 +152,21 @@ EdgeOne 的静态文件响应由平台提供，Range 支持和缓存行为以 Ed
 
 ## SnapNeo 接入边界
 
+官网通过以下描述文件获取下载地址，响应允许浏览器跨域读取，并禁用缓存：
+
+- Windows 便携版：`/snapneo/stable/windows-x64-portable.json`，读取 `url` 字段。
+- Apple 芯片 Mac：`/snapneo/stable/macos-arm64.xml`，读取 `enclosure` 的 `url` 属性。
+- Intel 芯片 Mac：`/snapneo/stable/macos-x64.xml`，读取 `enclosure` 的 `url` 属性。
+
+Windows 便携版描述文件仅用于官网下载入口，与安装版的签名更新索引 `windows-x64.json` 独立维护。
+
 当前公式下载器可以跟随 HTTPS 302，并保留 Range 和 SHA256 校验。
-当前软件更新器会拒绝跨域跳转；在完成客户端下载策略调整与旧版升级安排前，
+Windows 安装版的自动更新器会拒绝跨域跳转；在完成客户端下载策略调整与旧版升级安排前，
 更新安装包仍应使用自有域名下的真实文件，不能立即添加指向 CNB 的安装包映射。
 本工具不修改应用的更新信任策略，也不生成或修改签名更新索引。
+
+SnapNeo Intel Mac 的更新索引为 `public/snapneo/stable/macos-x64.xml`。
+发布时从 SnapNeo 暂存目录同步签名 XML，不能手动修改已签名内容中的标题或下载地址。
 
 ## 验证
 

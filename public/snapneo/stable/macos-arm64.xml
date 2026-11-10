@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>SnapNeo macOS arm64</title><link>https://snapneo.app/</link><item><title>SnapNeo 1.1.0</title><pubDate>Mon, 09 Nov 2026 08:29:38 GMT</pubDate><sparkle:version>1.1.0</sparkle:version><sparkle:shortVersionString>1.1.0</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion><description>&lt;pre&gt;SnapNeo 1.1.0
+2026-11-05
+
+新增自由选区、划词翻译、贴图挂绳与内容拖出，完善标注、文件分享和录屏剪辑。
+
+- 新增自由选区截图：右键拖动圈选任意形状，支持移动、缩放、标注及历史恢复，PNG、复制和静态贴图保留圈外透明区域。
+- 普通与滚动截图支持同时执行复制、打开查看器和贴到桌面；历史记录与图库支持拖出文件，并提供复制文件、复制路径等分享操作。
+- 标注新增可编辑曲线箭头，直线、折线和曲线均可切换无箭头、单向或双向，并支持实线、虚线和点线；完善矩形、椭圆线型与工具样式预览。
+- 新增免费划词翻译：在其他应用中选中文字后按 Ctrl+F1，也可从托盘输入文字；支持编辑原文、切换语言、复制、贴图、固定置顶及本次运行中的草稿恢复。图片翻译在中英文界面均可使用，悬停译文可对照原文。翻译需自行配置百度翻译 APP ID 和密钥，主动翻译时仅发送文字，不上传图片。
+- 新增贴图共享挂绳，每屏一根，可放在任意边缘；支持收起图片、文字、颜色和实时贴图，从其他应用拖入图片或文字，悬停预览、分页、排序和点击取回，并可自定义手柄长度与不透明度。
+- 桌面贴图与挂绳卡片新增内容拖出按钮，可将图片复制到其他应用或文件夹，将文字拖入支持文本的应用；优化投放预览、收起与展开动画，以及贴图重启恢复速度。
+- 完善 MP4 裁剪的时间输入、当前帧定位、撤销与重做，降低拖动时间轴的预览延迟；保留原视频，片段导出仍为 Pro 功能。
+- Pro 录屏的鼠标操作提示新增可选移动拖影，默认关闭，提供三档强度；尾迹随移动淡出，预览与成片保持一致。
+- 修复 OCR 字符选择边界与文字位置不一致的问题，改善原图选字、插入光标和复制体验。
+- “关于 → 故障排查”新增缓存占用统计与清理；完善恢复默认设置，并改善显示器断开、缩放变化和临时屏幕几何异常后的窗口恢复。
+&lt;/pre&gt;</description><enclosure url="https://dl.iapp.run/snapneo/releases/1.1.0/SnapNeo-1.1.0-macos-arm64.dmg" length="94816305" type="application/octet-stream" sparkle:edSignature="K0F2t0G3l2+GuerlAl7ZzcbXwnnzp0W3dT75EC3oF9YvUQXXyIiGlqNXz2aMHFPeidq72jbx6LIkTw6bWghoCw==" sparkle:os="macos"></enclosure></item></channel></rss><!-- sparkle-signatures:
+edSignature: 0sLuhFoNjzfBkXGjRi+9JlBE3y2tNV7ECUXiOcuZEvEKikUdEfxivpQkplrOHExATlslWE3O+mL63ZDxKZwMAQ==
+length: 3214
+-->

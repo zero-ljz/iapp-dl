@@ -46,6 +46,12 @@ export function createApp({ lookup, staticFiles, listDirectory, onError = consol
     return c.text('Service unavailable\n', 503);
   });
   app.use('*', async (c, next) => {
+    await next();
+    if (/^\/[^/]+\/stable\/[^/]+\.(?:json|xml)$/.test(c.req.path)) {
+      c.header('Access-Control-Allow-Origin', '*');
+    }
+  });
+  app.use('*', async (c, next) => {
     c.header('X-Content-Type-Options', 'nosniff');
     if (!['GET', 'HEAD'].includes(c.req.method)) {
       c.header('Allow', 'GET, HEAD');

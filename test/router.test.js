@@ -149,6 +149,46 @@ test('Node serves only public files and redirects take priority', async t => {
   assert.deepEqual(errors, []);
 });
 
+test('release descriptors allow cross-origin browser reads on every runtime', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'download-descriptors-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const publicDir = join(root, 'public');
+  await mkdir(join(publicDir, 'snapneo', 'stable'), { recursive: true });
+  await writeFile(join(root, 'routes.json'), JSON.stringify(config()));
+  const descriptors = {
+    '/snapneo/stable/windows-x64-portable.json': '{"url":"https://downloads.example.com/app.7z"}',
+    '/snapneo/stable/macos-arm64.xml': '<rss><channel/></rss>',
+  };
+  for (const [path, body] of Object.entries(descriptors)) {
+    await writeFile(join(publicDir, path.slice(1)), body);
+  }
+  const instance = await startServer({ config: join(root, 'routes.json'), publicDir, port: 0 });
+  t.after(() => instance.close());
+  const assets = Object.keys(descriptors).map(path => ({ path, type: 'file' }));
+  const staticResponse = request => new Response(descriptors[new URL(request.url).pathname]);
+  const worker = createWorker(config(), { assets });
+  const edgeone = createEdgeOne(config(), { assets, fetchStatic: staticResponse });
+  const runtimes = {
+    node: (path, method) => fetch(`http://127.0.0.1:${instance.server.address().port}${path}`,
+      { method, headers: { Origin: 'https://snapneo.app' } }),
+    worker: (path, method) => worker.fetch(new Request('https://dl.iapp.run' + path,
+      { method, headers: { Origin: 'https://snapneo.app' } }), { ASSETS: { fetch: staticResponse } }),
+    edgeone: (path, method) => edgeone.request('https://dl.iapp.run' + path,
+      { method, headers: { Origin: 'https://snapneo.app' } }),
+  };
+  for (const [name, request] of Object.entries(runtimes)) {
+    for (const [path, body] of Object.entries(descriptors)) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await request(path, method);
+        assert.equal(response.status, 200, name);
+        assert.equal(response.headers.get('access-control-allow-origin'), '*', name);
+        assert.equal(response.headers.get('cache-control'), 'no-store', name);
+        assert.equal(await response.text(), method === 'HEAD' ? '' : body, name);
+      }
+    }
+  }
+});
+
 test('invalid or missing configuration keeps the last working map', async t => {
   const root = await mkdtemp(join(tmpdir(), 'download-config-'));
   t.after(() => rm(root, { recursive: true, force: true }));
