@@ -159,6 +159,7 @@ EdgeOne 的静态文件响应由平台提供，Range 支持和缓存行为以 Ed
 - Intel 芯片 Mac：`/snapneo/stable/macos-x64.xml`，读取 `enclosure` 的 `url` 属性。
 
 Windows 便携版描述文件仅用于官网下载入口，与安装版的签名更新索引 `windows-x64.json` 独立维护。
+EdgeOne 对静态文件直接应用根目录 `edgeone.json` 中的跨域与缓存响应头；Node 和 Worker 使用共享路由中的响应头。
 
 当前公式下载器可以跟随 HTTPS 302，并保留 Range 和 SHA256 校验。
 Windows 安装版的自动更新器会拒绝跨域跳转；在完成客户端下载策略调整与旧版升级安排前，
