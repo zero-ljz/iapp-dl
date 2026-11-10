@@ -47,9 +47,7 @@ export function createApp({ lookup, staticFiles, listDirectory, onError = consol
   });
   app.use('*', async (c, next) => {
     await next();
-    if (/^\/[^/]+\/stable\/[^/]+\.(?:json|xml)$/.test(c.req.path)) {
-      c.header('Access-Control-Allow-Origin', '*');
-    }
+    c.header('Access-Control-Allow-Origin', '*');
   });
   app.use('*', async (c, next) => {
     c.header('X-Content-Type-Options', 'nosniff');

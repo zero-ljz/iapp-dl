@@ -63,6 +63,7 @@ Worker 将 Range 交给 ASSETS，保留平台原生响应；平台可能返回�
 索引不向外部服务器请求元数据。添加映射即表示公开该资源的入口路径。
 同一个版本路径应始终返回相同字节；更新内容时换新版本路径，以兼容客户端 SHA256 校验。
 文件、跳转和错误响应均设置 `Cache-Control: no-store`，以便后续切换；前置 CDN 不应覆盖它。
+所有响应统一设置 `Access-Control-Allow-Origin: *`，公开文件和映射可由任意官网跨域读取，新应用无需单独配置。
 
 ## Node.js 运行
 
@@ -152,7 +153,7 @@ EdgeOne 的静态文件响应由平台提供，Range 支持和缓存行为以 Ed
 
 ## SnapNeo 接入边界
 
-官网通过以下描述文件获取下载地址，响应允许浏览器跨域读取，并禁用缓存：
+官网通过以下描述文件获取下载地址：
 
 - Windows 便携版：`/snapneo/stable/windows-x64-portable.json`，读取 `url` 字段。
 - Apple 芯片 Mac：`/snapneo/stable/macos-arm64.xml`，读取 `enclosure` 的 `url` 属性。

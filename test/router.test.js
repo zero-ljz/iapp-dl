@@ -149,7 +149,7 @@ test('Node serves only public files and redirects take priority', async t => {
   assert.deepEqual(errors, []);
 });
 
-test('release descriptors allow cross-origin browser reads on every runtime', async t => {
+test('public downloads allow cross-origin browser reads on every runtime', async t => {
   const root = await mkdtemp(join(tmpdir(), 'download-descriptors-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const publicDir = join(root, 'public');
@@ -158,19 +158,22 @@ test('release descriptors allow cross-origin browser reads on every runtime', as
   const descriptors = {
     '/snapneo/stable/windows-x64-portable.json': '{"url":"https://downloads.example.com/app.7z"}',
     '/snapneo/stable/macos-arm64.xml': '<rss><channel/></rss>',
+    '/another-app.zip': 'another public download',
   };
   for (const [path, body] of Object.entries(descriptors)) {
     await writeFile(join(publicDir, path.slice(1)), body);
   }
+  const mappings = config({ '/redirect.zip': destination });
+  await writeFile(join(root, 'routes.json'), JSON.stringify(mappings));
   const instance = await startServer({ config: join(root, 'routes.json'), publicDir, port: 0 });
   t.after(() => instance.close());
   const assets = Object.keys(descriptors).map(path => ({ path, type: 'file' }));
   const staticResponse = request => new Response(descriptors[new URL(request.url).pathname]);
-  const worker = createWorker(config(), { assets });
-  const edgeone = createEdgeOne(config(), { assets, fetchStatic: staticResponse });
+  const worker = createWorker(mappings, { assets });
+  const edgeone = createEdgeOne(mappings, { assets, fetchStatic: staticResponse });
   const runtimes = {
     node: (path, method) => fetch(`http://127.0.0.1:${instance.server.address().port}${path}`,
-      { method, headers: { Origin: 'https://snapneo.app' } }),
+      { method, redirect: 'manual', headers: { Origin: 'https://snapneo.app' } }),
     worker: (path, method) => worker.fetch(new Request('https://dl.iapp.run' + path,
       { method, headers: { Origin: 'https://snapneo.app' } }), { ASSETS: { fetch: staticResponse } }),
     edgeone: (path, method) => edgeone.request('https://dl.iapp.run' + path,
@@ -185,6 +188,12 @@ test('release descriptors allow cross-origin browser reads on every runtime', as
         assert.equal(response.headers.get('cache-control'), 'no-store', name);
         assert.equal(await response.text(), method === 'HEAD' ? '' : body, name);
       }
+    }
+    for (const [path, status] of [['/redirect.zip', 302], ['/missing.bin', 404]]) {
+      const response = await request(path, 'GET');
+      assert.equal(response.status, status, name);
+      assert.equal(response.headers.get('access-control-allow-origin'), '*', name);
+      await response.arrayBuffer();
     }
   }
 });
