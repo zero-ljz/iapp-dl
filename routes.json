@@ -1,6 +1,8 @@
 {
   "schema": 1,
   "routes": {
+    "/snapneo/releases/1.1.0/SnapNeo-1.1.0-macos-arm64.dmg": "https://github.com/zero-ljz/software-releases/releases/download/snapneo/v1.1.0/SnapNeo-1.1.0-macos-arm64.dmg",
+    "/snapneo/releases/1.1.0/SnapNeo-1.1.0-windows-x64-portable.7z": "https://github.com/zero-ljz/software-releases/releases/download/snapneo/v1.1.0/SnapNeo-1.1.0-windows-x64-portable.7z",
     "/snapneo/models/formula/pix2text-mfr-1.5-openvino-fp16-v1.zip": "https://cnb.cool/iapp.run/downloads/-/files/Rn2zC3hptNdDeDOMFM7uWD/7ad1a06a-c20f-4ea3-bf48-6b26f6f4ae42/pix2text-mfr-1.5-openvino-fp16-v1.zip"
   }
 }
