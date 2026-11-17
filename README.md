@@ -170,6 +170,17 @@ Windows 安装版的自动更新器会拒绝跨域跳转；在完成客户端下
 SnapNeo Intel Mac 的更新索引为 `public/snapneo/stable/macos-x64.xml`。
 发布时从 SnapNeo 暂存目录同步签名 XML，不能手动修改已签名内容中的标题或下载地址。
 
+## Screen Eye Care 更新清单
+
+`public/screen-eye-care/stable/latest.json` 对应
+`https://dl.iapp.run/screen-eye-care/stable/latest.json`。清单采用 Tauri updater 静态 JSON 格式，
+平台键分别区分 Windows 安装版、便携版和 macOS 通用包。便携版条目仅供手动下载，不支持应用内安装。
+
+当前 `version: "0.0.0"`、`platforms: {}` 表示尚未发布，不会触发客户端更新。
+准备正式发布时，在 `screen-eye-care` 应用仓库运行 `npm run updates:manifest` 生成清单，
+先公开 `zero-ljz/software-releases` 中 `screen-eye-care/v<version>` Release 的全部附件，再部署更新清单。
+私钥不得放入本仓库或 `public/`。
+
 ## 验证
 
 ```sh
