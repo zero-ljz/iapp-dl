@@ -2,11 +2,9 @@
 
 通用下载分发服务：固定入口、外部 URL 跳转、本地文件和极简目录索引。
 
-部署域名为 `https://dl.iapp.run`。资源按应用分组：`public/<应用>/stable/` 存放更新索引，`public/<应用>/releases/` 存放安装包，`public/<应用>/models/` 存放模型；跨应用资源放在 `public/shared/`。
-
-一个 Node.js 项目，同时支持自有服务器、Cloudflare Workers 和 EdgeOne Pages。
+支持 Node.js 自托管、Cloudflare Workers 和 EdgeOne Pages。
 使用 Hono 的标准 Request/Response 接口共用路由逻辑；只有启动入口和静态文件读取方式不同。
-只维护一份 `routes.json`，无需 KV、数据库或管理接口。
+共用一份 `routes.json` 和 `public/` 资源目录，无需 KV、数据库或管理接口。
 
 请求处理顺序：先按完整路径查映射，命中返回 302；否则读取 `public/` 中对应文件；
 目录请求生成索引页；均不存在则返回 404。软件、模型及其他资源共用这套逻辑，
@@ -18,12 +16,9 @@
 iapp-dl/
   routes.json               # 唯一的资源映射配置，不公开
   public/                   # 唯一的静态资源目录
-    snapneo/stable/windows-x64.json
-    snapneo/stable/windows-x64-portable.json
-    snapneo/stable/macos-arm64.xml
-    snapneo/stable/macos-x64.xml
-    snapneo/releases/<版本号>/<安装包>
-    snapneo/models/formula/本地模型.zip
+    <应用>/stable/          # 更新索引
+    <应用>/releases/        # 安装包
+    <应用>/models/          # 模型
     shared/                 # 跨应用资源
   functions/                # EdgeOne Pages Functions 入口和构建生成模块
   src/                      # 服务代码，不公开
@@ -39,16 +34,15 @@ Node 的文件响应支持 HEAD 和单段 Range，使用流式读取，不会把
 Worker 将 Range 交给 ASSETS，保留平台原生响应；平台可能返回完整的 200 响应，
 因此不能保证 Worker 静态文件支持断点续传。外部资源由目标平台处理 Range。
 
-开始时 `routes.json` 为空，所有普通请求都访问 `public/`。例如：
-`/snapneo/stable/windows-x64.json` 对应 `public/snapneo/stable/windows-x64.json`。
-准备好外部资源后再添加映射，以下 URL 仅为示例：
+资源可按应用分组，目录结构可自行调整。未配置映射的路径读取 `public/` 中的对应文件，
+例如 `/example-app/stable/latest.json` 对应 `public/example-app/stable/latest.json`。
+外部资源在 `routes.json` 中配置，例如：
 
 ```json
 {
   "schema": 1,
   "routes": {
-    "/snapneo/models/formula/model-v1.zip": "https://cnb.cool/ORG/REPO/-/releases/download/model-v1/model-v1.zip",
-    "/another-app/releases/2.0/setup.exe": "https://downloads.example.com/arbitrary/setup.exe"
+    "/example-app/releases/setup.exe": "https://downloads.example.com/setup.exe"
   }
 }
 ```
@@ -58,16 +52,17 @@ Worker 将 Range 交给 ASSETS，保留平台原生响应；平台可能返回�
 密码或片段。使用平台的固定下载入口，避免保存短期有效的签名 URL。
 
 同一路径有映射和本地文件时，映射优先。删除映射后会恢复本地文件下载。
-索引自动合并两者：上述映射会生成 `/snapneo/models/formula/` 等可浏览目录，
+索引自动合并本地文件与映射路径，生成可浏览目录，
 外部资源的大小和修改时间显示为 `-`，点击后仍通过自有域名路径返回 302。
 索引不向外部服务器请求元数据。添加映射即表示公开该资源的入口路径。
 同一个版本路径应始终返回相同字节；更新内容时换新版本路径，以兼容客户端 SHA256 校验。
 文件、跳转和错误响应均设置 `Cache-Control: no-store`，以便后续切换；前置 CDN 不应覆盖它。
-所有响应统一设置 `Access-Control-Allow-Origin: *`，公开文件和映射可由任意官网跨域读取，新应用无需单独配置。
+所有响应设置 `Access-Control-Allow-Origin: *`，公开文件和映射可由任意官网跨域读取，新应用无需单独配置。
+Node 和 Worker 使用共享路由中的响应头；EdgeOne 静态文件的跨域与缓存响应头由 `edgeone.json` 配置。
 
 ## Node.js 运行
 
-要求 Node.js 22.12+，推荐 Node.js 24 LTS。在此项目目录执行：
+要求 Node.js 22.12+，推荐 Node.js 24 LTS；最低版本以 `package.json` 的 `engines` 为准。在项目目录执行：
 
 ```sh
 npm ci
@@ -91,7 +86,7 @@ npm start
 给予项目、配置及公开文件读取权限，并根据实际安装位置调整 Node 路径。
 配置及资源由部署用户维护，服务进程只需读权限。
 
-## Cloudflare Worker 运行与迁移
+## Cloudflare Workers 运行与迁移
 
 同一个项目目录执行：
 
@@ -121,18 +116,17 @@ Node 的目录索引实时读取文件；Worker 在启动开发环境、构建�
 生成内部目录信息 `build/asset-index.json`，并打包进 Worker。该文件不公开、不提交 Git，
 也不需要手动维护。Worker 本地开发期间添加或删除文件后需重新运行 `dev:worker`。
 
-Cloudflare 静态资源目前单文件上限为 25 MiB，发布检查会提前拒绝超限文件和符号链接。
-因此约 55 MB 的公式模型和大型安装包应在迁移前改为外部 URL 映射，并将其文件移出 `public/`；
-Node 自托管没有这项 25 MiB 限制。目标存储平台自己的容量、流量和访问限制仍适用。
+Worker 发布检查按 Cloudflare 静态资源单文件 25 MiB 的限制拒绝超限文件，并拒绝符号链接。
+超限资源应在迁移前改为外部 URL 映射，并将文件移出 `public/`；Node 自托管不受该平台限制。
+目标存储平台自己的容量、流量和访问限制仍适用。
 迁移时需要完整携带 `public/`；其中的公开资源随 Git 提交和同步。
 GitHub 自动检查仅运行测试和构建，不会发布服务或上传这些资源。
 
 ## EdgeOne Pages 运行
 
-EdgeOne Pages 使用 Edge Functions 运行 Hono。官方 Hono 模板使用 `functions/` 目录，
-其中 `functions/[[default]].js` 接收所有请求并导出 `onRequest(context)`；本项目已经提供同样的入口。
-EdgeOne 的运行时提供标准 Request、Response 和 fetch，EdgeOne 适配器会通过同域 fetch 读取已发布的
-`public/` 文件，同时使用构建时生成的清单制作目录索引。
+EdgeOne Pages 使用 Edge Functions 运行 Hono，入口为 `functions/[[default]].js`，
+接收所有请求并导出 `onRequest(context)`。运行时提供标准 Request、Response 和 fetch，
+适配器通过同域 fetch 读取已发布的 `public/` 文件，使用构建时生成的清单制作目录索引。
 
 在 EdgeOne Pages 的 Git 构建设置中使用：
 
@@ -151,46 +145,11 @@ EdgeOne；Node 自托管仍可自动重载配置，Cloudflare 仍使用 `npm run
 
 EdgeOne 的静态文件响应由平台提供，Range 支持和缓存行为以 EdgeOne 实际响应为准。
 
-## SnapNeo 接入边界
-
-官网通过以下描述文件获取下载地址：
-
-- Windows 便携版：`/snapneo/stable/windows-x64-portable.json`，读取 `url` 字段。
-- Apple 芯片 Mac：`/snapneo/stable/macos-arm64.xml`，读取 `enclosure` 的 `url` 属性。
-- Intel 芯片 Mac：`/snapneo/stable/macos-x64.xml`，读取 `enclosure` 的 `url` 属性。
-
-Windows 便携版描述文件仅用于官网下载入口，与安装版的签名更新索引 `windows-x64.json` 独立维护。
-EdgeOne 对静态文件直接应用根目录 `edgeone.json` 中的跨域与缓存响应头；Node 和 Worker 使用共享路由中的响应头。
-
-当前公式下载器可以跟随 HTTPS 302，并保留 Range 和 SHA256 校验。
-Windows 安装版的自动更新器会拒绝跨域跳转；在完成客户端下载策略调整与旧版升级安排前，
-更新安装包仍应使用自有域名下的真实文件，不能立即添加指向 CNB 的安装包映射。
-本工具不修改应用的更新信任策略，也不生成或修改签名更新索引。
-
-SnapNeo Intel Mac 的更新索引为 `public/snapneo/stable/macos-x64.xml`。
-发布时从 SnapNeo 暂存目录同步签名 XML，不能手动修改已签名内容中的标题或下载地址。
-
-## Screen Eye Care 更新清单
-
-`public/screen-eye-care/stable/latest.json` 对应
-`https://dl.iapp.run/screen-eye-care/stable/latest.json`。清单采用 Tauri updater 静态 JSON 格式，
-平台键分别区分 Windows 安装版、便携版和 macOS 通用包。便携版条目仅供手动下载，不支持应用内安装。
-
-当前稳定版本为 **1.0.0**，提供 `darwin-universal` 更新条目，供 Apple Silicon / Intel Mac 共用。
-Windows 更新条目在对应软件包发布后再添加；商店版继续使用 Microsoft Store 更新。
-
-`/screen-eye-care/releases/1.0.0/` 下的 DMG、`.app.tar.gz`、`.sig` 和 `.sha256` 通过
-`routes.json` 映射到 `zero-ljz/software-releases` 的 `screen-eye-care/v1.0.0` Release。
-DMG 用于首次安装，签名 `.app.tar.gz` 用于应用内更新。清单中的下载地址使用上述自有域名映射。
-
-后续发布时，在 `screen-eye-care` 应用仓库运行 `npm run updates:manifest` 生成并验证清单，
-再将下载 URL 改为相应的版本映射地址，保留生成的签名不变。先公开 Release 全部附件，
-再部署映射和更新清单。私钥不得放入本仓库或 `public/`。
-
 ## 验证
 
 ```sh
 npm test
+npm run build
 npm run build:worker
 ```
 
