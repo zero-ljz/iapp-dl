@@ -4,6 +4,11 @@
     "/snapneo/releases/1.1.0/SnapNeo-1.1.0-macos-arm64.dmg": "https://github.com/zero-ljz/software-releases/releases/download/snapneo/v1.1.0/SnapNeo-1.1.0-macos-arm64.dmg",
     "/snapneo/releases/1.1.0/SnapNeo-1.1.0-macos-x64.dmg": "https://github.com/zero-ljz/software-releases/releases/download/snapneo/v1.1.0/SnapNeo-1.1.0-macos-x64.dmg",
     "/snapneo/releases/1.1.0/SnapNeo-1.1.0-windows-x64-portable.7z": "https://github.com/zero-ljz/software-releases/releases/download/snapneo/v1.1.0/SnapNeo-1.1.0-windows-x64-portable.7z",
-    "/snapneo/models/formula/pix2text-mfr-1.5-openvino-fp16-v1.zip": "https://cnb.cool/iapp.run/downloads/-/files/Rn2zC3hptNdDeDOMFM7uWD/7ad1a06a-c20f-4ea3-bf48-6b26f6f4ae42/pix2text-mfr-1.5-openvino-fp16-v1.zip"
+    "/snapneo/models/formula/pix2text-mfr-1.5-openvino-fp16-v1.zip": "https://cnb.cool/iapp.run/downloads/-/files/Rn2zC3hptNdDeDOMFM7uWD/7ad1a06a-c20f-4ea3-bf48-6b26f6f4ae42/pix2text-mfr-1.5-openvino-fp16-v1.zip",
+    "/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.dmg": "https://github.com/zero-ljz/software-releases/releases/download/screen-eye-care/v1.0.0/ScreenEyeCare-1.0.0-macos-universal.dmg",
+    "/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.dmg.sha256": "https://github.com/zero-ljz/software-releases/releases/download/screen-eye-care/v1.0.0/ScreenEyeCare-1.0.0-macos-universal.dmg.sha256",
+    "/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz": "https://github.com/zero-ljz/software-releases/releases/download/screen-eye-care/v1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz",
+    "/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz.sig": "https://github.com/zero-ljz/software-releases/releases/download/screen-eye-care/v1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz.sig",
+    "/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz.sha256": "https://github.com/zero-ljz/software-releases/releases/download/screen-eye-care/v1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz.sha256"
   }
 }

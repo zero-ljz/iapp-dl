@@ -176,10 +176,16 @@ SnapNeo Intel Mac 的更新索引为 `public/snapneo/stable/macos-x64.xml`。
 `https://dl.iapp.run/screen-eye-care/stable/latest.json`。清单采用 Tauri updater 静态 JSON 格式，
 平台键分别区分 Windows 安装版、便携版和 macOS 通用包。便携版条目仅供手动下载，不支持应用内安装。
 
-当前 `version: "0.0.0"`、`platforms: {}` 表示尚未发布，不会触发客户端更新。
-准备正式发布时，在 `screen-eye-care` 应用仓库运行 `npm run updates:manifest` 生成清单，
-先公开 `zero-ljz/software-releases` 中 `screen-eye-care/v<version>` Release 的全部附件，再部署更新清单。
-私钥不得放入本仓库或 `public/`。
+当前稳定版本为 **1.0.0**，提供 `darwin-universal` 更新条目，供 Apple Silicon / Intel Mac 共用。
+Windows 更新条目在对应软件包发布后再添加；商店版继续使用 Microsoft Store 更新。
+
+`/screen-eye-care/releases/1.0.0/` 下的 DMG、`.app.tar.gz`、`.sig` 和 `.sha256` 通过
+`routes.json` 映射到 `zero-ljz/software-releases` 的 `screen-eye-care/v1.0.0` Release。
+DMG 用于首次安装，签名 `.app.tar.gz` 用于应用内更新。清单中的下载地址使用上述自有域名映射。
+
+后续发布时，在 `screen-eye-care` 应用仓库运行 `npm run updates:manifest` 生成并验证清单，
+再将下载 URL 改为相应的版本映射地址，保留生成的签名不变。先公开 Release 全部附件，
+再部署映射和更新清单。私钥不得放入本仓库或 `public/`。
 
 ## 验证
 
