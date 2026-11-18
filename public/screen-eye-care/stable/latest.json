@@ -1,5 +1,11 @@
 {
-  "version": "0.0.0",
-  "notes": "",
-  "platforms": {}
+  "version": "1.0.0",
+  "notes": "1.0.0 正式版（macOS）\n• 支持 Apple Silicon / Intel 通用安装包。\n• 提供色温、软件亮度、兼容显示器硬件亮度调节与自动计划。\n• 支持智能休息提醒、全屏休息、专注模式与临时密码锁定。\n• 提供菜单栏快捷面板、中英双语和深浅主题。\n• 支持签名验证的应用内更新。\n",
+  "pub_date": "2026-11-18T12:22:31.067Z",
+  "platforms": {
+    "darwin-universal": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUb015c1IxNVA3b0Jkelg5ai9FeHBldzVTS3ZXNElEOEo1OW9KWTl1a28zR0NBdGZGR1hRQUsxK09rTkYxV1JZYXV0U2FWLzlzK2lOclhPV0FnMU9mclpyZzRyait0WlFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk1MDA0MDkyCWZpbGU6U2NyZWVuRXllQ2FyZS0xLjAuMC1tYWNvcy11bml2ZXJzYWwuYXBwLnRhci5negpiZHh4YXRFUm5panVzc3RpMUZjeWRORXNBOTVBNVd0NThVVytNaVhpYTBtcGVMdERHaE8zVGRKdnhOM3ZOaE1PL21FNDVMaEhhZE5WVkFrQkkzNEFEUT09Cg==",
+      "url": "https://dl.iapp.run/screen-eye-care/releases/1.0.0/ScreenEyeCare-1.0.0-macos-universal.app.tar.gz"
+    }
+  }
 }
